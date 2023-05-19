@@ -3,18 +3,17 @@ import { format } from 'date-fns'
 
 import './movie-item.css'
 
+const POSTER_HEIGHT = '281px'
+const POSTER_WIDTH = '183px'
+const POSTER_URL = 'https://image.tmdb.org/t/p/original'
+const DEFAULT_POSTER = 'https://via.placeholder.com/183x281'
+
 export default class MovieItem extends React.Component {
-  static defaultProps = {
-    data: {
-      release: '2020-02-02',
-    },
-  }
   formatDate(date) {
     if (!date) return 'unknown release date'
     const newDate = date.split('-')
-    const year = +newDate[0]
-    const month = +newDate[1] - 1
-    const day = +newDate[2]
+    let [year, month, day] = newDate
+    month = month - 1
 
     return format(new Date(year, month, day), 'MMMM q, yyyy')
   }
@@ -30,16 +29,15 @@ export default class MovieItem extends React.Component {
   }
 
   render() {
-    const { title, overview: description, poster_path: image, release_date: release } = this.props.data
+    const { title, overview: description, poster_path: posterPath, release_date: release } = this.props.data
 
-    const posterPath = image ? `https://image.tmdb.org/t/p/original${image}` : 'https://via.placeholder.com/183x281'
+    const poster = posterPath ? `${POSTER_URL}${posterPath}` : DEFAULT_POSTER
 
     const text = description ? this.formatText(description, 220) : 'Here is no overview for this movie'
-    // const date = release ? this.formatDate(release) : 'unknown release date';
 
     return (
       <li className="movie">
-        <img src={posterPath} width="183px" height="281px" alt="poster"></img>
+        <img src={poster} width={POSTER_WIDTH} height={POSTER_HEIGHT} alt="poster"></img>
         <div className="movie__details">
           <h5 className="movie__name">{title}</h5>
           <p className="movie__release">{this.formatDate(release)}</p>

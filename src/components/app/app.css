@@ -120,6 +120,11 @@ legend {
   display: block;
 }
 
+.no-internet {
+  width: 50%;
+  margin: 20% auto;
+}
+
 .wrapper {
   background-color: #e5e5e5;
 }
@@ -127,6 +132,7 @@ legend {
 .movies {
   margin: 0 auto;
   width: 1010px;
+  height: 100%;
 
   background-color: #ffffff;
 }

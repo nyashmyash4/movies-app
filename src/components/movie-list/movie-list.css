@@ -4,3 +4,11 @@
   flex-wrap: wrap;
   gap: 36px;
 }
+
+.movies__loader {
+  margin: 0 auto;
+}
+
+.movies__error {
+  margin: 0 auto;
+}
