@@ -138,7 +138,10 @@ legend {
   background-color: #ffffff;
 }
 
-.movies__pagination {
-  /* width: 100%; */
-  margin: 0 auto;
+.ant-pagination {
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
 }

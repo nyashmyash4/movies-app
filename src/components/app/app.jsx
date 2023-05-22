@@ -1,17 +1,11 @@
 import React from 'react'
-import { Online, Offline } from 'react-detect-offline'
-import { Alert, Pagination } from 'antd'
+import { Pagination } from 'antd'
 
 import MovieList from '../movieList/movieList'
 import SearchPannel from '../searchPannel/searchPannel'
 import MovieDB from '../../services/movie-db'
 
 import './app.css'
-
-const offlineConsts = {
-  message: 'No connection',
-  description: 'Something wrong, please, check your internet connection',
-}
 
 const noMoviesFound = 'No movies found'
 
@@ -30,19 +24,35 @@ export default class App extends React.Component {
   componentDidMount() {
     this.getMovies()
   }
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.currentPage !== this.state.currentPage) {
-      this.getMovies(this.state.searchValue, this.state.currentPage)
-    }
-  }
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (prevState.currentPage !== this.state.currentPage) {
+  //     this.setState({ loading: true })
+  //     this.getMovies(this.state.searchValue, this.state.currentPage)
+  //   }
+  // }
 
   onError = (err) => {
-    this.setState({ error: true, loading: false, errorInfo: err.message })
+    this.setState((state) => {
+      return {
+        ...state,
+        movies: [],
+        error: true,
+        loading: false,
+        errorInfo: err.message,
+      }
+    })
   }
 
   getInputValue = (evt) => {
     const value = evt.target.value.toLowerCase().trim()
-    this.setState({ loading: true, searchValue: value })
+    this.setState((state) => {
+      return {
+        ...state,
+        currentPage: 1,
+        loading: true,
+        searchValue: value,
+      }
+    })
   }
 
   getMovies = (key) => {
@@ -53,49 +63,48 @@ export default class App extends React.Component {
         if (!results.length) {
           throw new Error(noMoviesFound)
         }
-        this.setState({ movies: results, loading: false, totalPages: totalPages })
+        this.setState((state) => {
+          return {
+            ...state,
+            movies: results,
+            error: false,
+            loading: false,
+            totalPages: totalPages,
+          }
+        })
       })
       .catch(this.onError)
   }
 
-  setPage = (evt) => {
-    // window.scrollTo({
-    //   top: 0,
-    //   left: 100,
-    //   behavior: 'smooth',
-    // })
-    this.setState({ currentPage: evt })
+  changePage = (evt) => {
+    this.setState((state) => {
+      return {
+        ...state,
+        currentPage: evt,
+        loading: true,
+      }
+    })
+    this.getMovies(this.state.searchValue, this.state.currentPage)
   }
 
   render() {
     const { movies, loading, error, searchValue, totalPages, errorInfo, currentPage } = this.state
-
     return (
       <>
-        <Online>
-          <div className="wrapper">
-            <section className="movies">
-              <SearchPannel getInputValue={this.getInputValue} getMovies={this.getMovies} value={searchValue} />
-              <MovieList movies={movies} error={error} errorInfo={errorInfo} loading={loading} />
-              <Pagination
-                current={currentPage}
-                total={totalPages}
-                pageSize={movies.length}
-                showSizeChanger={false}
-                onChange={(evt) => this.setPage(evt)}
-                className="movies__pagination"
-              />
-            </section>
-          </div>
-        </Online>
-        <Offline>
-          <Alert
-            message={offlineConsts.message}
-            type="error"
-            description={offlineConsts.description}
-            className="no-internet"
-          />
-        </Offline>
+        <div className="wrapper">
+          <section className="movies">
+            <SearchPannel getInputValue={this.getInputValue} getMovies={this.getMovies} value={searchValue} />
+            <MovieList movies={movies} error={error} errorInfo={errorInfo} loading={loading} />
+            <Pagination
+              current={currentPage}
+              total={totalPages}
+              pageSize={movies.length}
+              showSizeChanger={false}
+              onChange={(page) => this.changePage(page)}
+              className={!movies.length ? 'hidden' : ''}
+            />
+          </section>
+        </div>
       </>
     )
   }

@@ -2,7 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 36px;
-  min-height: 100vh;
+  height: 100%;
   margin-bottom: 25px;
 }
 
@@ -11,5 +11,6 @@
 }
 
 .movies__error {
-  margin: 50% auto;
+  margin: 0 auto;
+  height: 60px;
 }

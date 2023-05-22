@@ -18,8 +18,9 @@ const MovieList = (props) => {
   })
 
   const hasData = !(loading || error)
-  const errorMessage = error ? <Alert type="info" description={errorInfo} className="movies__error" /> : null
-  const loader = loading ? <Spin size="large" className="movies__loader" /> : null
+  const errorMessage =
+    error && !loading ? <Alert type="info" description={errorInfo} className="movies__error" /> : null
+  const loader = loading && !error ? <Spin size="large" className="movies__loader" /> : null
   const content = hasData ? elements : null
 
   return (
