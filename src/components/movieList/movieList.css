@@ -1,14 +1,15 @@
 .movies__list {
-  padding: 19px 32px;
   display: flex;
   flex-wrap: wrap;
   gap: 36px;
+  min-height: 100vh;
+  margin-bottom: 25px;
 }
 
 .movies__loader {
-  margin: 0 auto;
+  margin: 50% auto;
 }
 
 .movies__error {
-  margin: 0 auto;
+  margin: 50% auto;
 }

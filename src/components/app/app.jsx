@@ -1,55 +1,98 @@
 import React from 'react'
 import { Online, Offline } from 'react-detect-offline'
-import { Alert } from 'antd'
+import { Alert, Pagination } from 'antd'
 
-import MovieList from '../movie-list/movie-list'
+import MovieList from '../movieList/movieList'
+import SearchPannel from '../searchPannel/searchPannel'
 import MovieDB from '../../services/movie-db'
 
 import './app.css'
 
-export default class App extends React.Component {
-  constructor() {
-    super()
+const offlineConsts = {
+  message: 'No connection',
+  description: 'Something wrong, please, check your internet connection',
+}
 
-    this.getMovies()
-  }
+const noMoviesFound = 'No movies found'
+
+export default class App extends React.Component {
   movieServise = new MovieDB()
   state = {
     movies: [],
     loading: true,
     error: false,
     errorInfo: '',
+    searchValue: '',
+    currentPage: 1,
+    totalPages: null,
   }
 
-  onError = () => {
-    this.setState({ error: true, loading: false })
+  componentDidMount() {
+    this.getMovies()
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.currentPage !== this.state.currentPage) {
+      this.getMovies(this.state.searchValue, this.state.currentPage)
+    }
   }
 
-  getMovies() {
+  onError = (err) => {
+    this.setState({ error: true, loading: false, errorInfo: err.message })
+  }
+
+  getInputValue = (evt) => {
+    const value = evt.target.value.toLowerCase().trim()
+    this.setState({ loading: true, searchValue: value })
+  }
+
+  getMovies = (key) => {
     this.movieServise
-      .getAllMovies()
+      .getAllMovies(key, this.state.currentPage)
       .then((movies) => {
-        this.setState({ movies: movies, loading: false })
+        const { results, total_pages: totalPages } = movies
+        if (!results.length) {
+          throw new Error(noMoviesFound)
+        }
+        this.setState({ movies: results, loading: false, totalPages: totalPages })
       })
       .catch(this.onError)
   }
+
+  setPage = (evt) => {
+    // window.scrollTo({
+    //   top: 0,
+    //   left: 100,
+    //   behavior: 'smooth',
+    // })
+    this.setState({ currentPage: evt })
+  }
+
   render() {
-    const { movies, loading, error } = this.state
+    const { movies, loading, error, searchValue, totalPages, errorInfo, currentPage } = this.state
 
     return (
       <>
         <Online>
           <div className="wrapper">
             <section className="movies">
-              <MovieList movies={movies} error={error} loading={loading} />
+              <SearchPannel getInputValue={this.getInputValue} getMovies={this.getMovies} value={searchValue} />
+              <MovieList movies={movies} error={error} errorInfo={errorInfo} loading={loading} />
+              <Pagination
+                current={currentPage}
+                total={totalPages}
+                pageSize={movies.length}
+                showSizeChanger={false}
+                onChange={(evt) => this.setPage(evt)}
+                className="movies__pagination"
+              />
             </section>
           </div>
         </Online>
         <Offline>
           <Alert
-            message="No connection"
+            message={offlineConsts.message}
             type="error"
-            description="Something wrong, please, check your internet connection"
+            description={offlineConsts.description}
             className="no-internet"
           />
         </Offline>

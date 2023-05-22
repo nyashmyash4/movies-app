@@ -133,6 +133,12 @@ legend {
   margin: 0 auto;
   width: 1010px;
   height: 100%;
+  padding: 19px 32px;
 
   background-color: #ffffff;
+}
+
+.movies__pagination {
+  /* width: 100%; */
+  margin: 0 auto;
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { format } from 'date-fns'
 
-import './movie-item.css'
+import './movieItem.css'
 
 const POSTER_HEIGHT = '281px'
 const POSTER_WIDTH = '183px'

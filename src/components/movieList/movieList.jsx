@@ -1,15 +1,16 @@
 import React from 'react'
 import { Spin, Alert } from 'antd'
 
-import MovieItem from '../movie-item/movie-item'
+import MovieItem from '../movieItem/movieItem'
 
-import './movie-list.css'
+import './movieList.css'
 
-const errorText = 'Oops, something gone wrong, refresh your page or try again later'
-const errorName = 'Error'
+// const errorText = 'Oops, something gone wrong, refresh your page or try again later'
+// const errorName = 'Error'
+// const noMoviestText = 'No movies found'
 
 const MovieList = (props) => {
-  const { movies, loading, error } = props
+  const { movies, loading, error, errorInfo } = props
 
   const elements = movies.map((el) => {
     const { id } = el
@@ -17,9 +18,7 @@ const MovieList = (props) => {
   })
 
   const hasData = !(loading || error)
-  const errorMessage = error ? (
-    <Alert message={errorName} type="error" showIcon description={errorText} className="movies__error" />
-  ) : null
+  const errorMessage = error ? <Alert type="info" description={errorInfo} className="movies__error" /> : null
   const loader = loading ? <Spin size="large" className="movies__loader" /> : null
   const content = hasData ? elements : null
 
