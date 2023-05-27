@@ -1,20 +1,17 @@
 import React from 'react'
 import { Spin, Alert } from 'antd'
+import PropTypes from 'prop-types'
 
 import MovieItem from '../movieItem/movieItem'
 
 import './movieList.css'
 
-// const errorText = 'Oops, something gone wrong, refresh your page or try again later'
-// const errorName = 'Error'
-// const noMoviestText = 'No movies found'
-
 const MovieList = (props) => {
   const { movies, loading, error, errorInfo } = props
 
   const elements = movies.map((el) => {
-    const { id } = el
-    return <MovieItem data={el} key={id} />
+    const { movieId } = el
+    return <MovieItem data={el} key={movieId} />
   })
 
   const hasData = !(loading || error)
@@ -30,6 +27,31 @@ const MovieList = (props) => {
       {content}
     </ul>
   )
+}
+
+MovieItem.defaultProps = {
+  movies: [],
+  loading: false,
+  error: false,
+  errorInfo: '',
+}
+
+MovieItem.propTypes = {
+  movies: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      description: PropTypes.string,
+      posterPath: PropTypes.string,
+      release: PropTypes.string,
+      avgRate: PropTypes.number,
+      movieId: PropTypes.number,
+      genreIds: PropTypes.array,
+      rating: PropTypes.number,
+    })
+  ),
+  loading: false,
+  error: false,
+  errorInfo: '',
 }
 
 export default MovieList

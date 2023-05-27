@@ -1,18 +1,14 @@
 // import { format } from 'date-fns';
 
 export default class MovieDB {
-  _baseURL = 'https://api.themoviedb.org'
-  options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization:
-        'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MGJlNmMxOTI2Y2RjODZiZGM1MzNiNDE1MmFhYzc0MCIsInN1YiI6IjY0NjNlODczZGJiYjQyMDBlMjJlODI3NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.NAst_wNV2zuLq7L8UUthD8O3Hflcet8ixe0eSkDjl-E',
-    },
+  constructor() {
+    this._baseURL = 'https://api.themoviedb.org'
+    this._apiKey = '50be6c1926cdc86bdc533b4152aac740'
+    this.addRating = this.addRating.bind(this)
   }
 
-  async getResourse(url) {
-    const response = await fetch(`${this._baseURL}${url}`, this.options)
+  async getResourse(url, options = null) {
+    const response = await fetch(`${this._baseURL}${url}`, options)
 
     if (!response.ok) {
       throw new Error(`Couldn't fetch ${url}, recieved ${response.status}`)
@@ -23,25 +19,70 @@ export default class MovieDB {
 
   async getAllMovies(keyWord, page = '1') {
     if (!keyWord) {
-      keyWord = 'they'
+      keyWord = 'friend'
     }
-    const params = `/3/search/movie?query=${keyWord}&%3F&language=en-US&include_adult=false&page=${page}`
+    const params = `/3/search/movie?api_key=${this._apiKey}&query=${keyWord}&%3F&language=en-US&include_adult=false&page=${page}`
     const response = await this.getResourse(params)
+    return this._transformMovieData(response)
+  }
+
+  async createGuestSession() {
+    const params = `/3/authentication/guest_session/new?api_key=${this._apiKey}`
+    const response = await this.getResourse(params)
+
     return response
   }
 
-  // async getMoviePoster(path) {
-  //   const url = `https://image.tmdb.org/t/p/original${path}`
-  //   const response = await fetch(url, {
-  //     method: 'GET',
-  //     headers: {
-  //       Authorization:
-  //         'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MGJlNmMxOTI2Y2RjODZiZGM1MzNiNDE1MmFhYzc0MCIsInN1YiI6IjY0NjNlODczZGJiYjQyMDBlMjJlODI3NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.NAst_wNV2zuLq7L8UUthD8O3Hflcet8ixe0eSkDjl-E',
-  //     },
-  //   })
-  //   console.log(response.status)
-  //   const imageBlob = await response.blob()
-  //   const imageObjectURL = URL.createObjectURL(imageBlob)
-  //   return imageObjectURL
-  // }
+  async addRating(value, guestId, movieId) {
+    const options = {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({ value: value }),
+    }
+    const params = `/3/movie/${movieId}/rating?api_key=${this._apiKey}&guest_session_id=${guestId}`
+    const response = await this.getResourse(params, options)
+
+    return response
+  }
+
+  async getRatedMovies(guestId, page = 1) {
+    const params = `/3/guest_session/${guestId}/rated/movies?api_key=${this._apiKey}&&page=${page}`
+    const response = await this.getResourse(params)
+    return this._transformMovieData(response)
+  }
+
+  async getGenres() {
+    const params = `/3/genre/movie/list?api_key=${this._apiKey}`
+    const response = await this.getResourse(params)
+
+    return response.genres
+  }
+
+  _transformMovieData(movies) {
+    const totalPages = movies.total_pages
+    const totalResults = movies.total_results
+    const page = movies.page
+    const moviesData = {}
+    const results = movies.results.map((movie) => {
+      return {
+        title: movie.title,
+        description: movie.overview,
+        posterPath: movie.poster_path,
+        release: movie.release_date,
+        avgRate: movie.vote_average,
+        movieId: movie.id,
+        genreIds: movie.genre_ids,
+        rating: movie.rating ? movie.rating : null,
+      }
+    })
+    moviesData.totalPages = totalPages
+    moviesData.totalResults = totalResults
+    moviesData.results = results
+    moviesData.page = page
+
+    return moviesData
+  }
 }

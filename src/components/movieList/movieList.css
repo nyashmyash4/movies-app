@@ -4,6 +4,7 @@
   gap: 36px;
   height: 100%;
   margin-bottom: 25px;
+  align-items: center;
 }
 
 .movies__loader {
@@ -13,4 +14,11 @@
 .movies__error {
   margin: 0 auto;
   height: 60px;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+  .movies__list {
+    row-gap: 30px;
+    margin: 0 auto;
+  }
 }
